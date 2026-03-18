@@ -24,7 +24,7 @@ The program uses a low‑level keyboard hook (`WH_KEYBOARD_LL`) to intercept and
 - [UPX](https://upx.github.io/) or [UPX on SourceForge](https://upx.sourceforge.net/)
 
 The provided build script assumes the compiler is installed at:  
-`C:\Program Files (x86)\Embarcadero\Dev-Cpp\TDM-GCC-64\bin`  
+`C:\TDM-GCC-64\bin`  
 If your compiler is located elsewhere, edit the `set PATH=` line in `build.bat`.
 
 ## How to Build
