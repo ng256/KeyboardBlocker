@@ -25,9 +25,10 @@
  * Description: Main source file for Keyboard Blocker application.
  *              Implements window procedure, low-level keyboard hook,
  *              tray icon management, balloon notifications, and
- *              inter-process communication via mutex and event.
+ *              inter-process communication via mutex and auto-reset event.
  *              Includes keyword detection ("unblock") to unblock,
- *              and tray menu commands to enable/disable blocking.
+ *              tray menu commands to enable/disable blocking,
+ *              and registry persistence for the blocking state.
  */
 
 #include "keyblock.h"
@@ -35,81 +36,102 @@
 
 #pragma comment(linker, "/SUBSYSTEM:WINDOWS")
 
-//-------------------------------------------------------------------
-// Constants for keyword detection
-//-------------------------------------------------------------------
-#define KEYWORD     "unblock"
-#define KEYWORD_LEN 7
-
-//-------------------------------------------------------------------
+//=============================================================================
 // Global variables
-//-------------------------------------------------------------------
-HINSTANCE       g_hInst;
-HANDLE          g_hMutex = NULL;
-HANDLE          g_hStopEvent = NULL;
-HANDLE          g_hWatchThread = NULL;
-HHOOK           g_hHook = NULL;
-HWND            g_hwnd = NULL;
-NOTIFYICONDATA  g_nid = {0};
+//=============================================================================
 
-BOOL            g_bBlocking = TRUE;            // initially blocked
-CRITICAL_SECTION g_cs;                         // protects g_typed and g_typedLen
-char            g_typed[KEYWORD_LEN+1] = {0};  // last typed letters (linear buffer)
-int             g_typedLen = 0;                // number of letters in buffer
+HINSTANCE       g_hInst;                // Application instance handle
+HANDLE          g_hMutex = NULL;        // Mutex to ensure single instance
+HANDLE          g_hEvent = NULL;        // Auto-reset event for status requests
+HANDLE          g_hWatchThread = NULL;  // Thread that waits for event
+HHOOK           g_hHook = NULL;         // Low-level keyboard hook handle
+HWND            g_hwnd = NULL;          // Hidden window handle
+NOTIFYICONDATA  g_nid = {0};            // Tray icon notification data
 
-//-------------------------------------------------------------------
-// Helper: convert character to lowercase
-//-------------------------------------------------------------------
-static char to_lower(char c)
+BOOL            g_bBlocking = TRUE;     // Current blocking state (TRUE = blocked)
+CRITICAL_SECTION g_cs;                  // Protects g_typed and g_typedLen
+char            g_typed[KEYWORD_LEN+1] = {0}; // Last KEYWORD_LEN letters typed (lowercase)
+int             g_typedLen = 0;         // Number of valid letters in g_typed
+
+//=============================================================================
+// Registry persistence
+//=============================================================================
+
+// Save current blocking state to HKCU\Software\Keyblock\State (DWORD)
+void SaveBlockingStateToRegistry(void)
 {
-    if (c >= 'A' && c <= 'Z')
-        return c + 32;
-    return c;
+    HKEY hKey;
+    DWORD dwDisposition;
+    LONG lResult = RegCreateKeyExA(HKEY_CURRENT_USER, "Software\\Keyblock", 0, NULL,
+                                   REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &dwDisposition);
+    if (lResult == ERROR_SUCCESS)
+    {
+        DWORD value = TO_DWORD(g_bBlocking);
+        RegSetValueExA(hKey, "State", 0, REG_DWORD, (BYTE*)&value, sizeof(value));
+        RegCloseKey(hKey);
+    }
 }
 
-//-------------------------------------------------------------------
-// Unblock keyboard (disable blocking) and show balloon
-//-------------------------------------------------------------------
-static void UnblockKeyboard(HWND hwnd)
+// Load blocking state from registry; default to blocked if missing/invalid
+void LoadBlockingStateFromRegistry(void)
+{
+    HKEY hKey;
+    LONG lResult = RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Keyblock", 0, KEY_READ, &hKey);
+    if (lResult == ERROR_SUCCESS)
+    {
+        DWORD value = 0;
+        DWORD type = 0;
+        DWORD size = sizeof(value);
+        lResult = RegQueryValueExA(hKey, "State", NULL, &type, (BYTE*)&value, &size);
+		// If registry key missing or non-zero, g_bBlocking remains TRUE (default)
+        if (lResult == ERROR_SUCCESS && type == REG_DWORD)
+        {
+            g_bBlocking = TO_BOOL(value);
+        }
+        RegCloseKey(hKey);
+    }
+}
+
+//=============================================================================
+// Block/Unblock control (with registry sync and balloon)
+//=============================================================================
+
+void UnblockKeyboard(HWND hwnd)
 {
     EnterCriticalSection(&g_cs);
     g_bBlocking = FALSE;
-    // Clear typed buffer to avoid stale data
-    g_typedLen = 0;
+    g_typedLen = 0;          // clear typed buffer
     g_typed[0] = '\0';
     LeaveCriticalSection(&g_cs);
-
+    SaveBlockingStateToRegistry();
     ShowBalloonUnblocked(hwnd);
 }
 
-//-------------------------------------------------------------------
-// Block keyboard (enable blocking) and show balloon
-//-------------------------------------------------------------------
-static void BlockKeyboard(HWND hwnd)
+void BlockKeyboard(HWND hwnd)
 {
     EnterCriticalSection(&g_cs);
     g_bBlocking = TRUE;
-    // Clear typed buffer to start fresh
-    g_typedLen = 0;
+    g_typedLen = 0;          // clear typed buffer
     g_typed[0] = '\0';
     LeaveCriticalSection(&g_cs);
-
+    SaveBlockingStateToRegistry();
     ShowBalloonBlocked(hwnd);
 }
 
-//-------------------------------------------------------------------
-// Entry point
-//-------------------------------------------------------------------
+//=============================================================================
+// WinMain – entry point
+//=============================================================================
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
     g_hInst = hInstance;
 
-    // Mutex for single instance
+    // Single instance control via mutex
     g_hMutex = CreateMutexA(NULL, FALSE, MUTEX_NAME);
     if (g_hMutex == NULL)
         return 1;
 
-    // Second instance signals the first to exit
+    // Second instance: signal the first to show status and quit
     if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
         HANDLE hEvent = OpenEventA(EVENT_MODIFY_STATE, FALSE, EVENT_NAME);
@@ -122,13 +144,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return 0;
     }
 
-    // First instance: create stop event
-    g_hStopEvent = CreateEventA(NULL, TRUE, FALSE, EVENT_NAME);
-    if (!g_hStopEvent)
+    // First instance: create auto-reset event
+    g_hEvent = CreateEventA(NULL, FALSE, FALSE, EVENT_NAME);
+    if (!g_hEvent)
     {
         CloseHandle(g_hMutex);
         return 1;
     }
+
+    // Load saved blocking state from registry
+    LoadBlockingStateFromRegistry();
 
     // Initialize critical section for keyword buffer
     InitializeCriticalSection(&g_cs);
@@ -144,29 +169,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     if (!RegisterClassExA(&wc))
     {
         DeleteCriticalSection(&g_cs);
-        CloseHandle(g_hStopEvent);
+        CloseHandle(g_hEvent);
         CloseHandle(g_hMutex);
         return 1;
     }
 
-    // Create hidden window
+    // Create hidden window (used for message handling and tray icon)
     g_hwnd = CreateWindowExA(0, "KeyboardBlockerClass", "KeyboardBlocker",
                              0, 0, 0, 0, 0, NULL, NULL, g_hInst, NULL);
     if (!g_hwnd)
     {
         DeleteCriticalSection(&g_cs);
-        CloseHandle(g_hStopEvent);
+        CloseHandle(g_hEvent);
         CloseHandle(g_hMutex);
         return 1;
     }
 
-    // Start watch thread (waits for stop event)
+    // Start thread that waits for the event (from second instances)
     g_hWatchThread = CreateThread(NULL, 0, WatchThreadProc, NULL, 0, NULL);
     if (!g_hWatchThread)
     {
         DestroyWindow(g_hwnd);
         DeleteCriticalSection(&g_cs);
-        CloseHandle(g_hStopEvent);
+        CloseHandle(g_hEvent);
         CloseHandle(g_hMutex);
         return 1;
     }
@@ -184,17 +209,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     return 0;
 }
 
-//-------------------------------------------------------------------
+//=============================================================================
 // Window procedure
-//-------------------------------------------------------------------
+//=============================================================================
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
         case WM_CREATE:
             AddTrayIcon(hwnd);
-            ShowBalloonBlocked(hwnd);          // notify that keyboard is blocked
-            // Set low-level keyboard hook
+            // Show balloon according to current blocking state
+            if (g_bBlocking)
+                ShowBalloonBlocked(hwnd);
+            else
+                ShowBalloonUnblocked(hwnd);
+            // Install low-level keyboard hook
             g_hHook = SetWindowsHookExW(WH_KEYBOARD_LL, LowLevelKeyboardProc,
                                         GetModuleHandleW(NULL), 0);
             if (!g_hHook)
@@ -203,8 +233,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case WM_TRAYICON:
             if (lParam == WM_RBUTTONUP)
-                ShowTrayMenu(hwnd);          // Right click
-            else if (lParam == WM_LBUTTONUP)
+                ShowTrayMenu(hwnd);          // Right click: show context menu
+            else if (lParam == WM_LBUTTONUP) // Left click: show current state balloon
             {
                 if (g_bBlocking)
                     ShowBalloonBlocked(hwnd);
@@ -213,13 +243,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
             return 0;
 
-        case WM_STOP_BLOCKING:
-            // Signal from watch thread – exit the application
-            ShowBalloonUnblocked(hwnd);
-            DestroyWindow(hwnd);
+        case WM_SHOW_STATUS:
+            // Show current status balloon (triggered by second instance)
+            if (g_bBlocking)
+                ShowBalloonBlocked(hwnd);
+            else
+                ShowBalloonUnblocked(hwnd);
             return 0;
 
         case WM_DESTROY:
+            SaveBlockingStateToRegistry();   // Persist final state
             RemoveTrayIcon();
             if (g_hHook)
                 UnhookWindowsHookEx(g_hHook);
@@ -228,14 +261,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 WaitForSingleObject(g_hWatchThread, 1000);
                 CloseHandle(g_hWatchThread);
             }
-            if (g_hStopEvent)
-                CloseHandle(g_hStopEvent);
+            if (g_hEvent)
+                CloseHandle(g_hEvent);
             if (g_hMutex)
                 CloseHandle(g_hMutex);
             PostQuitMessage(0);
             return 0;
 
         case WM_QUERYENDSESSION:
+            // System shutdown: save state and clean up
+            SaveBlockingStateToRegistry();
             ShowBalloonUnblocked(hwnd);
             DestroyWindow(hwnd);
             return TRUE;
@@ -245,28 +280,27 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
 }
 
-//-------------------------------------------------------------------
-// Keyboard hook – blocks or passes keys based on g_bBlocking,
-// and detects the keyword "unblock" only when blocking is active.
-//-------------------------------------------------------------------
+//=============================================================================
+// Low-level keyboard hook procedure
+//=============================================================================
+
 LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
     if (nCode == HC_ACTION && (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN))
     {
-        // If blocking is active, we need to process keys for keyword detection
+        // Only process letters when blocking is active (to detect "unblock")
         if (g_bBlocking)
         {
             KBDLLHOOKSTRUCT *p = (KBDLLHOOKSTRUCT*)lParam;
-            // Get the character for this virtual key (ignores dead keys)
             WORD ch = MapVirtualKeyA(p->vkCode, MAPVK_VK_TO_CHAR);
             if (ch && (ch & 0x8000) == 0)   // not a dead key
             {
                 char c = (char)ch;
-                c = to_lower(c);
-                if (c >= 'a' && c <= 'z')   // only letters matter for keyword
+                c = TO_LOWER(c);            // macro inlined
+                if (c >= 'a' && c <= 'z')   // only letters matter
                 {
                     EnterCriticalSection(&g_cs);
-                    // Update the linear buffer of last KEYWORD_LEN letters
+                    // Maintain circular buffer of last KEYWORD_LEN letters
                     if (g_typedLen < KEYWORD_LEN)
                     {
                         g_typed[g_typedLen] = c;
@@ -275,12 +309,12 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
                     }
                     else
                     {
-                        // shift left and append
                         for (int i = 0; i < KEYWORD_LEN-1; i++)
                             g_typed[i] = g_typed[i+1];
                         g_typed[KEYWORD_LEN-1] = c;
                     }
-                    // Check if buffer exactly matches the keyword
+
+                    // Check for keyword match
                     int match = 1;
                     for (int i = 0; i < KEYWORD_LEN; i++)
                     {
@@ -292,38 +326,41 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
                     }
                     if (match && g_typedLen == KEYWORD_LEN)
                     {
-                        // Keyword detected – unblock the keyboard
                         LeaveCriticalSection(&g_cs);
-                        UnblockKeyboard(g_hwnd);
-                        return 1;   // block this key (the 'u' that completed the keyword)
+                        UnblockKeyboard(g_hwnd);   // toggle off blocking
+                        return 1;   // block the final 'u' key that completed the word
                     }
                     LeaveCriticalSection(&g_cs);
                 }
             }
         }
-        // If blocking is not active, we don't process letters at all
     }
 
-    // Decide whether to block or pass the key
+    // Pass or block based on current blocking state
     if (g_bBlocking)
-        return 1;   // block all keys (including those already handled for detection)
+        return 1;   // block all keys
     else
         return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
-//-------------------------------------------------------------------
-// Watch thread: waits for stop event from second instance
-//-------------------------------------------------------------------
+//=============================================================================
+// Watch thread: waits for event (signaled by second instances)
+//=============================================================================
+
 DWORD WINAPI WatchThreadProc(LPVOID lpParam)
 {
-    WaitForSingleObject(g_hStopEvent, INFINITE);
-    PostMessage(g_hwnd, WM_STOP_BLOCKING, 0, 0);
+    while (1)
+    {
+        WaitForSingleObject(g_hEvent, INFINITE);
+        PostMessage(g_hwnd, WM_SHOW_STATUS, 0, 0);
+    }
     return 0;
 }
 
-//-------------------------------------------------------------------
-// Add tray icon (using resource IDI_ICON16) with white background removal
-//-------------------------------------------------------------------
+//=============================================================================
+// Tray icon management
+//=============================================================================
+
 void AddTrayIcon(HWND hwnd)
 {
     g_nid.cbSize = sizeof(NOTIFYICONDATA);
@@ -332,7 +369,7 @@ void AddTrayIcon(HWND hwnd)
     g_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
     g_nid.uCallbackMessage = WM_TRAYICON;
 
-    // Load original icon from resources
+    // Load icon from resources
     HICON hOriginalIcon = (HICON)LoadImage(g_hInst, MAKEINTRESOURCE(IDI_ICON16),
                                            IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
     if (!hOriginalIcon)
@@ -345,18 +382,16 @@ void AddTrayIcon(HWND hwnd)
     DestroyIcon(hOriginalIcon);
 }
 
-//-------------------------------------------------------------------
-// Remove tray icon
-//-------------------------------------------------------------------
 void RemoveTrayIcon()
 {
     g_nid.uFlags = 0;
     Shell_NotifyIconA(NIM_DELETE, &g_nid);
 }
 
-//-------------------------------------------------------------------
-// Show balloon information
-//-------------------------------------------------------------------
+//=============================================================================
+// Balloon notifications
+//=============================================================================
+
 void ShowBalloonMessage(HWND hwnd, const char* title, const char* text, DWORD infoFlags)
 {
     NOTIFYICONDATAA nid = {0};
@@ -373,20 +408,14 @@ void ShowBalloonMessage(HWND hwnd, const char* title, const char* text, DWORD in
     Shell_NotifyIconA(NIM_MODIFY, &nid);
 }
 
-//-------------------------------------------------------------------
-// Show block notification
-//-------------------------------------------------------------------
 void ShowBalloonBlocked(HWND hwnd)
 {
     ShowBalloonMessage(hwnd, "Keyboard Blocker",
                        "Keyboard is blocked.\n"
-                       "Run the app again, right-click the icon and select Exit, or type 'unblock' to unblock.",
+                       "Type 'unblock' to unblock, or right-click the icon.",
                        NIIF_WARNING);
 }
 
-//-------------------------------------------------------------------
-// Show unblock notification
-//-------------------------------------------------------------------
 void ShowBalloonUnblocked(HWND hwnd)
 {
     ShowBalloonMessage(hwnd, "Keyboard Blocker",
@@ -394,9 +423,10 @@ void ShowBalloonUnblocked(HWND hwnd)
                        NIIF_INFO);
 }
 
-//-------------------------------------------------------------------
-// Context menu on right click
-//-------------------------------------------------------------------
+//=============================================================================
+// Tray icon context menu
+//=============================================================================
+
 void ShowTrayMenu(HWND hwnd)
 {
     HMENU hMenu = CreatePopupMenu();
