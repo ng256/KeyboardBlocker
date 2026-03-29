@@ -151,6 +151,19 @@ void KillProcessByName(LPCSTR processName)
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
+	// Confirm uninstallation
+	int result = MessageBoxA(
+		NULL,
+		"Are you sure you want to uninstall Keyboard Blocker?",
+		"Keyboard Blocker",
+		MB_OKCANCEL | MB_ICONQUESTION | MB_DEFBUTTON2
+	);
+
+	if (result != IDOK)
+	{
+		return 0;
+	}
+	
     char exePath[MAX_PATH];
     char dirPath[MAX_PATH];
 

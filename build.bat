@@ -37,6 +37,7 @@ set KEYBLOCK_C=keyblock.c
 
 REM Uninstaller
 set UNINSTALL_NAME=uninstall
+set UNINSTALL_RC=uninstall.rc
 set UNINSTALL_C=uninstall.c
 
 REM Derive object file names from source files
@@ -44,6 +45,7 @@ set KEYBLOCK_RC_OBJ=%KEYBLOCK_RC:.rc=.o%
 set KEYBLOCK_C_OBJ=%KEYBLOCK_C:.c=.o%
 set KEYBLOCK_EXE=%PROJECT_NAME%.exe
 
+set UNINSTALL_RC_OBJ=%UNINSTALL_RC:.rc=.rc.o%
 set UNINSTALL_OBJ=%UNINSTALL_C:.c=.o%
 set UNINSTALL_EXE=%UNINSTALL_NAME%.exe
 
@@ -85,6 +87,7 @@ REM Compile resources
 REM ------------------------------------------------------------
 echo Compiling resources...
 windres -i %KEYBLOCK_RC% -o %KEYBLOCK_RC_OBJ% --input-format=rc -O coff -F pe-i386
+windres -i %UNINSTALL_RC% -o %UNINSTALL_RC_OBJ% --input-format=rc -O coff -F pe-i386
 if errorlevel 1 goto error
 
 REM ------------------------------------------------------------
@@ -112,7 +115,7 @@ REM ------------------------------------------------------------
 REM Link uninstaller
 REM ------------------------------------------------------------
 echo Linking %UNINSTALL_EXE%...
-gcc -m32 -Os -s -static -static-libgcc -ffunction-sections -fdata-sections -mwindows %UNINSTALL_OBJ% -o %UNINSTALL_EXE% -Wl,--gc-sections -lshlwapi
+gcc -m32 -Os -s -static -static-libgcc -ffunction-sections -fdata-sections -mwindows %UNINSTALL_OBJ% %UNINSTALL_RC_OBJ% -o %UNINSTALL_EXE% -Wl,--gc-sections -lshlwapi
 if errorlevel 1 goto error
 
 REM ------------------------------------------------------------
@@ -154,6 +157,7 @@ REM ------------------------------------------------------------
 echo Cleaning object files...
 if exist %KEYBLOCK_C_OBJ% del %KEYBLOCK_C_OBJ%
 if exist %KEYBLOCK_RC_OBJ% del %KEYBLOCK_RC_OBJ%
+if exist %UNINSTALL_RC_OBJ% del %UNINSTALL_RC_OBJ%
 if exist %UNINSTALL_OBJ% del %UNINSTALL_OBJ%
 
 REM ------------------------------------------------------------
