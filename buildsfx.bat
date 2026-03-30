@@ -41,8 +41,9 @@ REM SFX script
 set "COMMENT=sfx.ini"
 
 REM Required files
-set "FILE1=keyblock.exe"
-set "FILE2=install.bat"
+set "FILE0=keyblock.exe"
+set "FILE1=keyblock.tmp"
+set "FILE2=install.js"
 set "FILE3=uninstall.exe"
 set "ICON=icon32.ico"
 set "LOGO=sfx.bmp"
@@ -55,6 +56,16 @@ echo Checking WinRAR...
 if not exist "%RAR%" (
     echo WinRAR not found: %RAR%
     echo Set correct path to winrar.exe
+    goto :error
+)
+
+REM --------------------------------------------
+REM Prepare temporary copy (avoid file lock issue)
+REM --------------------------------------------
+echo Preparing temporary executable...
+copy /Y "%FILE0%" "%FILE1%" >nul
+if errorlevel 1 (
+    echo Failed to create keyblock.tmp
     goto :error
 )
 
@@ -121,6 +132,12 @@ if errorlevel 1 (
     echo WinRAR failed with code %ERRORLEVEL%
     goto :error
 )
+
+REM --------------------------------------------
+REM Cleanup temporary files
+REM --------------------------------------------
+echo Cleaning temporary files...
+if exist "%FILE1%" del "%FILE1%"
 
 REM --------------------------------------------
 REM Verify result
