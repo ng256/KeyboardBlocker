@@ -47,7 +47,7 @@ The script will:
 After a successful build you will find `keyblock.exe`, `uninstall.exe` and `setup.exe` in the same folder.
 
 ### Using the Installer
-- Run `Setup.exe` to install Keyboard Blocker.
+- Run [Setup.exe](https://github.com/ng256/KeyboardBlocker/releases/download/keyblock/Setup.exe) to install Keyboard Blocker.
 - The program will be extracted to `%APPDATA%\Keyblock` and added to Windows startup.
 
 ## Usage
