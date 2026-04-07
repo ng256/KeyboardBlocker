@@ -18,6 +18,8 @@ The program uses a low‑level keyboard hook (`WH_KEYBOARD_LL`) to intercept and
 
 ## Installation
 
+Quick install: Download [Setup.exe](https://github.com/ng256/KeyboardBlocker/releases/download/keyblock/Setup.exe) and run it. The program will be installed to %APPDATA%\Keyblock and added to Windows startup.
+
 ### Compilation Requirements
 
 - Windows operating system.
