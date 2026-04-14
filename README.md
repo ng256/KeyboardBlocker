@@ -24,7 +24,7 @@ Quick install: Download [Setup.exe](https://github.com/ng256/KeyboardBlocker/rel
 
 - Windows operating system.
 
-- **MinGW‑w64** compiler (TDM‑GCC recommended) with `windres` (resource compiler) and `objdump` (usually included). The provided build script assumes the compiler is installed at: `C:\Program Files (x86)\Embarcadero\Dev-Cpp\TDM-GCC-64\bin`. If your compiler is located elsewhere, edit the `set PATH=` line in `build.bat`.
+- **MinGW‑w64** compiler (TDM‑GCC recommended) with `windres` (resource compiler) and `objdump` (usually included). The provided build script assumes the compiler is installed at: `C:\Program Files\TDM-GCC-64\bin`. If your compiler is located elsewhere, edit the `set PATH=` line in `build.bat`.
   - [TDM-GCC (MinGW-w64)](https://jmeubank.github.io/tdm-gcc/)
   - [Official MinGW-w64](https://www.mingw-w64.org/)
 
