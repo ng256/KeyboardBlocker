@@ -32,7 +32,7 @@ set UNINSTALL_OBJ=%UNINSTALL_C:.c=.o%
 set UNINSTALL_EXE=%UNINSTALL_NAME%.exe
 
 REM Path to GCC bin folder (adjust if necessary)
-set PATH=C:\Program Files (x86)\Embarcadero\Dev-Cpp\TDM-GCC-64\bin;%PATH%
+set PATH=C:\Program Files\TDM-GCC-64\bin;%PATH%
 
 REM --------------------------------------------
 REM Check required files
