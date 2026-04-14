@@ -18,7 +18,11 @@ The program uses a low‑level keyboard hook (`WH_KEYBOARD_LL`) to intercept and
 
 ## Installation
 
-Quick install: Download [Setup.exe](https://github.com/ng256/KeyboardBlocker/releases/download/keyblock/Setup.exe) and run it. The program will be installed to %APPDATA%\Keyblock and added to Windows startup.
+### Using the Installer
+- Run [Setup.exe](https://github.com/ng256/KeyboardBlocker/releases/download/keyblock/Setup.exe) to install Keyboard Blocker.
+- The program will be extracted to `%APPDATA%\Keyblock` and added to Windows startup.
+
+If you want, you can modify the source code and create your own binaries.
 
 ### Compilation Requirements
 
@@ -47,10 +51,6 @@ The script will:
 7. Create an SFX archive that includes all necessary files and an installation script. Ensure WinRAR is installed and the path in `buildsfx.bat` is correctly set to the default or your custom location.
 
 After a successful build you will find `keyblock.exe`, `uninstall.exe` and `setup.exe` in the same folder.
-
-### Using the Installer
-- Run [Setup.exe](https://github.com/ng256/KeyboardBlocker/releases/download/keyblock/Setup.exe) to install Keyboard Blocker.
-- The program will be extracted to `%APPDATA%\Keyblock` and added to Windows startup.
 
 ## Usage
 
