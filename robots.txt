@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ng256.github.io/KeyboardBlocker/sitemap.xml
