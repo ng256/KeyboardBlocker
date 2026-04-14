@@ -6,16 +6,19 @@
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "Keyboard Blocker",
+      "description": "Keyboard Blocker is a free Windows utility to disable and lock keyboard input. Prevent accidental keystrokes during videos, presentations or child use.",
       "operatingSystem": "Windows",
       "applicationCategory": "UtilityApplication",
       "applicationSubCategory": "System Utility",
       "offers": {
         "@type": "Offer",
         "price": "0",
-        "priceCurrency": "USD"
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
       },
       "downloadUrl": "https://github.com/ng256/KeyboardBlocker/releases/download/keyblock/Setup.exe",
       "softwareVersion": "1.0",
+      "url": "https://ng256.github.io/KeyboardBlocker/",
       "author": {
         "@type": "Person",
         "name": "Pavel Bashkardin"
@@ -25,6 +28,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="Keyboard Blocker is a free Windows utility to disable and lock keyboard input. Prevent accidental keystrokes during videos, presentations or child use. Download now.">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#1a2a3f" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#121826" media="(prefers-color-scheme: dark)">
     <meta property="og:title" content="Keyboard Blocker — Disable Keyboard Input on Windows">
     <meta property="og:description" content="Free utility to block and disable keyboard input in Windows">
     <meta property="og:type" content="website">
@@ -464,174 +470,176 @@
 
 <div class="document-container">
     <div class="content">
-        <!-- 
-        Keyboard Blocker - Windows application to block keyboard input
-        Copyright (c) 2025 Pavel Bashkardin
+        <main>
+            <!-- 
+            Keyboard Blocker - Windows application to block keyboard input
+            Copyright (c) 2025 Pavel Bashkardin
 
-        This file is part of Keyboard Blocker project, released under MIT license.
+            This file is part of Keyboard Blocker project, released under MIT license.
 
-        Description: Readme HTML file
-        -->
+            Description: Readme HTML file
+            -->
 
-        <h1>Keyboard Blocker — Disable Keyboard Input on Windows</h1>
-        <p>Copyright © 2025 Pavel Bashkardin</p>
+            <h1>Keyboard Blocker — Disable Keyboard Input on Windows</h1>
+            <p>Copyright © 2025 Pavel Bashkardin</p>
 
-        <div class="download-container">
-            <a href="https://github.com/ng256/KeyboardBlocker/releases/download/keyblock/Setup.exe" class="btn-download" download>
-                ⬇️ Download Keyboard Blocker Setup
-            </a>
-            <span class="download-note">Windows executable (Setup.exe) — latest release</span>
-        </div>
-        
-        <h2 id="description">Description</h2>
-        <p>
-            <strong>Keyboard Blocker</strong> is a lightweight free Windows utility designed to completely block keyboard input. It
-            runs silently in the background with a system tray icon (near the clock), making it ideal for preventing accidental
-            keystrokes (e.g., during video playback or when a child is using the computer).
-        </p>
-        <p>
-            The program uses a low‑level keyboard hook (<code>WH_KEYBOARD_LL</code>) to intercept and discard all keyboard
-            messages. It is intended for situations where you want to prevent a child (or anyone) from accidentally pressing
-            keys while watching a video.
-        </p>
-        
-        <h3 id="key-features">Key Features</h3>
-        <ul>
-            <li><strong>System Tray Integration</strong>: Runs in the background with a tray icon.</li>
-            <li><strong>Keyword Unblocking</strong>: Type <code>unblock</code> to unblock the keyboard at any time.</li>
-            <li><strong>Manual Control</strong>: Right-click the tray icon to block/unblock or exit.</li>
-            <li><strong>Registry Persistence</strong>: Remembers the last blocking state.</li>
-            <li><strong>Self-Contained Installer</strong>: Easy installation and uninstallation via <code>Setup.exe</code>.</li>
-            <li><strong>No Admin Rights Required</strong>: Works without administrator privileges.</li>
-        </ul>
-        
-        <h2 id="installation">Installation</h2>
-        <p>
-            <strong>Quick install:</strong> 
-            <a href="https://github.com/ng256/KeyboardBlocker/releases/download/keyblock/Setup.exe">Download Setup.exe</a> 
-            and run it. The program will be installed to <code>%APPDATA%\Keyblock</code> and added to Windows startup.<br>
-            If you want, you can modify the source code and create your own binaries.
-        </p>
-        
-        <h3 id="compilation-requirements">Compilation Requirements</h3>
-        <ul>
-            <li><p>Windows operating system.</p></li>
-            <li>
-                <p>
-                    <strong>MinGW‑w64</strong> compiler (TDM‑GCC recommended) with <code>windres</code> (resource compiler) and
-                    <code>objdump</code> (usually included). The provided build script assumes the compiler is installed at:
-                    <code>C:\Program Files\TDM-GCC-64\bin</code>. If your compiler is located
-                    elsewhere, edit the <code>set PATH=</code> line in <code>build.bat</code>.
-                </p>
-                <ul>
-                    <li><a href="https://jmeubank.github.io/tdm-gcc/">TDM-GCC (MinGW-w64)</a></li>
-                    <li><a href="https://www.mingw-w64.org/">Official MinGW-w64</a></li>
-                </ul>
-            </li>
-            <li>
-                <p><strong>Optional:</strong></p>
-                <ul>
-                    <li>
-                        <a href="https://upx.github.io/">UPX</a> or
-                        <a href="https://upx.sourceforge.net/">UPX on SourceForge</a> (Ultimate Packer for eXecutables) for
-                        further size reduction.
-                    </li>
-                    <li>
-                        <a href="https://www.win-rar.com/">WinRAR</a> Default path:
-                        <code>C:\Program Files\WinRAR\WinRAR.exe</code>. Change the <code>set PATH=</code> line in
-                        <code>buildsfx.bat</code> if it necessary.
-                    </li>
-                </ul>
-            </li>
-        </ul>
-        
-        <h3 id="how-to-build">How to Build</h3>
-        <p>Simply double‑click <code>build.bat</code> or run it from the command prompt.</p>
-        <p>The script will:</p>
-        <ol type="1">
-            <li>Delete old object files and the previous executable.</li>
-            <li>Compile all the resources script.</li>
-            <li>Compiles the main application and uninstaller.</li>
-            <li>Link everything to executable file with optimizations for small size.</li>
-            <li>Display the list of imported DLLs (to verify no unexpected dependencies).</li>
-            <li>If UPX is found, compress the executable (optional).</li>
-            <li>
-                Create an SFX archive that includes all necessary files and an installation script. Ensure WinRAR is installed
-                and the path in <code>buildsfx.bat</code> is correctly set to the default or your custom location.
-            </li>
-        </ol>
-        <p>
-            After a successful build you will find <code>keyblock.exe</code>, <code>uninstall.exe</code> and
-            <code>setup.exe</code> in the same folder.
-        </p>
-        
-        <h3 id="using-the-installer">Using the Installer</h3>
-        <ul>
-            <li>Run <code>Setup.exe</code> to install Keyboard Blocker. <a href="https://github.com/ng256/KeyboardBlocker/releases/download/keyblock/Setup.exe">Download the installer here</a>.</li>
-            <li>The program will be extracted to <code>%APPDATA%\Keyblock</code> and added to Windows startup.</li>
-        </ul>
-        
-        <h2 id="usage">Usage</h2>
-        <ul>
-            <li>
-                <strong>Block/Unblock</strong>:
-                <ul>
-                    <li>Right-click the tray icon and select <strong>“Block”</strong> or <strong>“Unblock”</strong>.</li>
-                    <li>Type <code>unblock</code> to unblock the keyboard at any time.</li>
-                </ul>
-            </li>
-            <li>
-                <strong>Exit</strong>:
-                <ul>
-                    <li>Right-click the tray icon and select <strong>“Exit”</strong>.</li>
-                </ul>
-            </li>
-            <li>
-                <strong>Notifications</strong>:
-                <ul>
-                    <li>Left-click the tray icon to show the current blocking state.</li>
-                </ul>
-            </li>
-        </ul>
-        <p>The program is designed to be as unobtrusive as possible: no windows, only a tray icon and occasional balloons.</p>
-        
-        <h2 id="uninstallation">Uninstallation</h2>
-        <ul>
-            <li>
-                <strong>Via Installer</strong>:
-                <ul>
-                    <li>Open <strong>Apps &amp; Features</strong> (or <strong>Programs and Features</strong>).</li>
-                    <li>Find <strong>Keyboard Blocker</strong> and click <strong>Uninstall</strong>.</li>
-                </ul>
-            </li>
-            <li>
-                <strong>Manual Removal</strong>:
-                <ul>
-                    <li>Delete the installation folder (<code>%APPDATA%\Keyblock</code>).</li>
-                    <li>
-                        Remove the <strong>“Keyboard Blocker”</strong> entry from Windows startup (via Task Manager or Registry
-                        Editor).
-                    </li>
-                </ul>
-            </li>
-        </ul>
-        
-        <h2 id="license">License</h2>
-        <p>
-            This project is licensed under the <strong>MIT License</strong>. See the <a href="LICENSE">LICENSE</a> file or the
-            source code headers for details. In short, you may use, copy, modify, merge, publish, distribute, sublicense, and/or
-            sell copies of the software, provided that the copyright notice and permission notice appear in all copies.
-        </p>
-        
-        <h2 id="author">Author</h2>
-        <p><strong>Pavel Bashkardin</strong></p>
-        <p>For questions or suggestions, feel free to contact the author via GitHub.</p>
+            <div class="download-container">
+                <a href="https://github.com/ng256/KeyboardBlocker/releases/download/keyblock/Setup.exe" class="btn-download">
+                    ⬇️ Download Keyboard Blocker Setup
+                </a>
+                <span class="download-note">Windows executable (Setup.exe) — latest release</span>
+            </div>
+            
+            <h2 id="description">Description</h2>
+            <p>
+                <strong>Keyboard Blocker</strong> is a lightweight free Windows utility designed to completely block keyboard input. It
+                runs silently in the background with a system tray icon (near the clock), making it ideal for preventing accidental
+                keystrokes (e.g., during video playback or when a child is using the computer).
+            </p>
+            <p>
+                The program uses a low‑level keyboard hook (<code>WH_KEYBOARD_LL</code>) to intercept and discard all keyboard
+                messages. It is intended for situations where you want to prevent a child (or anyone) from accidentally pressing
+                keys while watching a video.
+            </p>
+            
+            <h3 id="key-features">Key Features</h3>
+            <ul>
+                <li><strong>System Tray Integration</strong>: Runs in the background with a tray icon.</li>
+                <li><strong>Keyword Unblocking</strong>: Type <code>unblock</code> to unblock the keyboard at any time.</li>
+                <li><strong>Manual Control</strong>: Right-click the tray icon to block/unblock or exit.</li>
+                <li><strong>Registry Persistence</strong>: Remembers the last blocking state.</li>
+                <li><strong>Self-Contained Installer</strong>: Easy installation and uninstallation via <code>Setup.exe</code>.</li>
+                <li><strong>No Admin Rights Required</strong>: Works without administrator privileges.</li>
+            </ul>
+            
+            <h2 id="installation">Installation</h2>
+            <p>
+                <strong>Quick install:</strong> 
+                <a href="https://github.com/ng256/KeyboardBlocker/releases/download/keyblock/Setup.exe">Download Setup.exe</a> 
+                and run it. The program will be installed to <code>%APPDATA%\Keyblock</code> and added to Windows startup.<br>
+                If you want, you can modify the source code and create your own binaries.
+            </p>
+            
+            <h3 id="compilation-requirements">Compilation Requirements</h3>
+            <ul>
+                <li><p>Windows operating system.</p></li>
+                <li>
+                    <p>
+                        <strong>MinGW‑w64</strong> compiler (TDM‑GCC recommended) with <code>windres</code> (resource compiler) and
+                        <code>objdump</code> (usually included). The provided build script assumes the compiler is installed at:
+                        <code>C:\Program Files\TDM-GCC-64\bin</code>. If your compiler is located
+                        elsewhere, edit the <code>set PATH=</code> line in <code>build.bat</code>.
+                    </p>
+                    <ul>
+                        <li><a href="https://jmeubank.github.io/tdm-gcc/">TDM-GCC (MinGW-w64)</a></li>
+                        <li><a href="https://www.mingw-w64.org/">Official MinGW-w64</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <p><strong>Optional:</strong></p>
+                    <ul>
+                        <li>
+                            <a href="https://upx.github.io/">UPX</a> or
+                            <a href="https://upx.sourceforge.net/">UPX on SourceForge</a> (Ultimate Packer for eXecutables) for
+                            further size reduction.
+                        </li>
+                        <li>
+                            <a href="https://www.win-rar.com/">WinRAR</a> Default path:
+                            <code>C:\Program Files\WinRAR\WinRAR.exe</code>. Change the <code>set PATH=</code> line in
+                            <code>buildsfx.bat</code> if it necessary.
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3 id="how-to-build">How to Build</h3>
+            <p>Simply double‑click <code>build.bat</code> or run it from the command prompt.</p>
+            <p>The script will:</p>
+            <ol type="1">
+                <li>Delete old object files and the previous executable.</li>
+                <li>Compile all the resources script.</li>
+                <li>Compiles the main application and uninstaller.</li>
+                <li>Link everything to executable file with optimizations for small size.</li>
+                <li>Display the list of imported DLLs (to verify no unexpected dependencies).</li>
+                <li>If UPX is found, compress the executable (optional).</li>
+                <li>
+                    Create an SFX archive that includes all necessary files and an installation script. Ensure WinRAR is installed
+                    and the path in <code>buildsfx.bat</code> is correctly set to the default or your custom location.
+                </li>
+            </ol>
+            <p>
+                After a successful build you will find <code>keyblock.exe</code>, <code>uninstall.exe</code> and
+                <code>setup.exe</code> in the same folder.
+            </p>
+            
+            <h3 id="using-the-installer">Using the Installer</h3>
+            <ul>
+                <li>Run <code>Setup.exe</code> to install Keyboard Blocker. <a href="https://github.com/ng256/KeyboardBlocker/releases/download/keyblock/Setup.exe">Download the installer here</a>.</li>
+                <li>The program will be extracted to <code>%APPDATA%\Keyblock</code> and added to Windows startup.</li>
+            </ul>
+            
+            <h2 id="usage">Usage</h2>
+            <ul>
+                <li>
+                    <strong>Block/Unblock</strong>:
+                    <ul>
+                        <li>Right-click the tray icon and select <strong>“Block”</strong> or <strong>“Unblock”</strong>.</li>
+                        <li>Type <code>unblock</code> to unblock the keyboard at any time.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Exit</strong>:
+                    <ul>
+                        <li>Right-click the tray icon and select <strong>“Exit”</strong>.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Notifications</strong>:
+                    <ul>
+                        <li>Left-click the tray icon to show the current blocking state.</li>
+                    </ul>
+                </li>
+            </ul>
+            <p>The program is designed to be as unobtrusive as possible: no windows, only a tray icon and occasional balloons.</p>
+            
+            <h2 id="uninstallation">Uninstallation</h2>
+            <ul>
+                <li>
+                    <strong>Via Installer</strong>:
+                    <ul>
+                        <li>Open <strong>Apps &amp; Features</strong> (or <strong>Programs and Features</strong>).</li>
+                        <li>Find <strong>Keyboard Blocker</strong> and click <strong>Uninstall</strong>.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Manual Removal</strong>:
+                    <ul>
+                        <li>Delete the installation folder (<code>%APPDATA%\Keyblock</code>).</li>
+                        <li>
+                            Remove the <strong>“Keyboard Blocker”</strong> entry from Windows startup (via Task Manager or Registry
+                            Editor).
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h2 id="license">License</h2>
+            <p>
+                This project is licensed under the <strong>MIT License</strong>. See the <a href="LICENSE">LICENSE</a> file or the
+                source code headers for details. In short, you may use, copy, modify, merge, publish, distribute, sublicense, and/or
+                sell copies of the software, provided that the copyright notice and permission notice appear in all copies.
+            </p>
+            
+            <h2 id="author">Author</h2>
+            <p><strong>Pavel Bashkardin</strong></p>
+            <p>For questions or suggestions, feel free to contact the author via GitHub.</p>
 
-        <div class="github-footer">
-            <a href="https://github.com/ng256/KeyboardBlocker" target="_blank" rel="noopener noreferrer">
-                <span class="gh-icon">🐙</span> View source on GitHub · ng256/KeyboardBlocker
-            </a>
-        </div>
+            <div class="github-footer">
+                <a href="https://github.com/ng256/KeyboardBlocker" target="_blank" rel="noopener noreferrer">
+                    <span class="gh-icon">🐙</span> View source on GitHub · ng256/KeyboardBlocker
+                </a>
+            </div>
+        </main>
     </div>
 </div>
 
