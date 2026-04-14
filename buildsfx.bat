@@ -20,7 +20,7 @@ REM Output file
 set "OUT=Setup.exe"
 
 REM SFX script
-set "COMMENT=sfx.ini"
+set "COMMENT=install.ini"
 
 REM Required files
 set "FILE0=keyblock.exe"
@@ -28,7 +28,7 @@ set "FILE1=keyblock.tmp"
 set "FILE2=install.js"
 set "FILE3=uninstall.exe"
 set "ICON=icon32.ico"
-set "LOGO=sfx.bmp"
+set "LOGO=install.bmp"
 
 REM --------------------------------------------
 REM Check WinRAR
