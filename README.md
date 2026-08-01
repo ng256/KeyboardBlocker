@@ -54,6 +54,8 @@ After a successful build you will find `keyblock.exe`, `uninstall.exe` and `setu
 
 ## Usage
 
+<img width="257" height="72" alt="image" src="https://github.com/user-attachments/assets/c389bf4f-1008-4945-88fb-02260f01a79f" />
+
 - **Block/Unblock**:
   - Right-click the tray icon and choose **"Block"** or **"Unblock".**
   - Or, simply type `unblock` on your keyboard to unblock the keyboard instantly.
