@@ -1,6 +1,7 @@
 # Keyboard Blocker
-
 Copyright © 2025 Pavel Bashkardin
+
+<img width="64" height="64" alt="image" src="https://github.com/user-attachments/assets/3a73d802-ff6d-4e24-b785-cb6df88fd3dd" />
 
 ## Description
 
