@@ -329,29 +329,27 @@ img {
     height: auto;
 }
 
+/* Logo styling */
 .logo {
     display: block;
-    width: 64px;
-    height: 64px;
-    margin: 0.5rem 0 1rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 0.5rem auto 1rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    object-fit: contain;
 }
 
-/* Logo styling */
 .footer-logo {
     display: inline-block;
-    width: 32px;
-    height: 32px;
     margin-right: 0.8rem;
     vertical-align: middle;
-    border-radius: 8px;
+    border-radius: 6px;
+    object-fit: contain;
 }
 
 /* Adaptive logo for dark theme */
 @media (prefers-color-scheme: dark) {
     .logo, .footer-logo {
-        filter: brightness(0.9);
+        filter: brightness(0.95);
     }
 }
 
