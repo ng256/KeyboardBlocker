@@ -1,0 +1,425 @@
+/* ---------- CSS VARIABLES (LIGHT DEFAULT) ---------- */
+:root {
+    --bg-gradient-start: #eef2f7;
+    --bg-gradient-end: #d9e0e8;
+    --card-bg: #ffffff;
+    --text-primary: #1a2a3f;
+    --text-secondary: #2c3f4f;
+    --text-muted: #4a6a7f;
+    --heading-gradient-start: #1f3b4c;
+    --heading-gradient-end: #2c5a6e;
+    --border-light: #e2e8f0;
+    --code-bg: #f0f4f9;
+    --code-border: #e2e9f0;
+    --code-color: #c44536;
+    --link-color: #2c7da0;
+    --link-hover: #1f5e7a;
+    --blockquote-bg: #f8fafc;
+    --blockquote-border: #2c7da0;
+    --hr-gradient-start: #cbdde6;
+    --hr-gradient-end: #e9f0f5;
+    --list-marker: #2c7da0;
+    --shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.03);
+    --btn-bg: #2c7da0;
+    --btn-hover: #236b8a;
+    --btn-text: white;
+    --footer-border: #dce5ec;
+}
+
+/* ---------- DARK THEME (system preference) ---------- */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-gradient-start: #121826;
+        --bg-gradient-end: #0f141f;
+        --card-bg: #1e2432;
+        --text-primary: #eef2ff;
+        --text-secondary: #cbd5e6;
+        --text-muted: #94a3b8;
+        --heading-gradient-start: #7ab3c8;
+        --heading-gradient-end: #a0c6d9;
+        --border-light: #2d3a4b;
+        --code-bg: #0f131e;
+        --code-border: #2a3548;
+        --code-color: #f28b82;
+        --link-color: #6ab0de;
+        --link-hover: #8cc9f0;
+        --blockquote-bg: #1a212f;
+        --blockquote-border: #5d9bc3;
+        --hr-gradient-start: #2d3e52;
+        --hr-gradient-end: #1f2a38;
+        --list-marker: #6ab0de;
+        --shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+        --btn-bg: #5d9bc3;
+        --btn-hover: #7eb2d1;
+        --btn-text: #0f141f;
+        --footer-border: #2d3e4c;
+    }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(145deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Noto Sans', sans-serif;
+    line-height: 1.5;
+    color: var(--text-primary);
+    padding: 2rem 1rem;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* main card container */
+.document-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    border-radius: 32px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* inner content padding */
+.content {
+    padding: 2.5rem 2rem;
+}
+
+@media (max-width: 640px) {
+    body {
+        padding: 1rem;
+    }
+    .content {
+        padding: 1.8rem 1.25rem;
+    }
+}
+
+/* typography */
+h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    background: linear-gradient(135deg, var(--heading-gradient-start), var(--heading-gradient-end));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    margin-bottom: 0.5rem;
+    border-left: 5px solid var(--link-color);
+    padding-left: 1.2rem;
+}
+
+h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem 0;
+    padding-bottom: 0.4rem;
+    border-bottom: 2px solid var(--border-light);
+    color: var(--heading-gradient-start);
+}
+
+h3 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.6rem 0;
+    color: var(--link-color);
+}
+
+p {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+/* copyright line under h1 */
+.content > p:first-of-type {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-top: -0.2rem;
+    margin-bottom: 1.8rem;
+    font-weight: 450;
+    border-left: 3px solid var(--border-light);
+    padding-left: 1.2rem;
+}
+
+strong {
+    color: var(--heading-gradient-end);
+    font-weight: 600;
+}
+
+/* lists */
+ul, ol {
+    margin: 0.8rem 0 1rem 1.8rem;
+}
+
+li {
+    margin: 0.45rem 0;
+    color: var(--text-secondary);
+}
+
+li::marker {
+    color: var(--list-marker);
+}
+
+ul ul, ol ul, ul ol {
+    margin-top: 0.3rem;
+    margin-bottom: 0.3rem;
+}
+
+/* code & inline code blocks */
+code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', monospace;
+    background: var(--code-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 8px;
+    font-size: 0.85em;
+    color: var(--code-color);
+    font-weight: 500;
+    border: 1px solid var(--code-border);
+    white-space: nowrap;
+}
+
+a code {
+    color: var(--link-color);
+    background: color-mix(in srgb, var(--link-color) 10%, var(--code-bg));
+    border-color: color-mix(in srgb, var(--link-color) 30%, var(--code-border));
+}
+
+/* links */
+a {
+    color: var(--link-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-bottom: 1px solid transparent;
+}
+
+a:hover {
+    color: var(--link-hover);
+    border-bottom-color: var(--link-color);
+}
+
+/* download button styling */
+.download-container {
+    margin: 1.5rem 0 2rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: flex-start;
+}
+.btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    padding: 0.75rem 1.5rem;
+    border-radius: 60px;
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    text-decoration: none;
+    border-bottom: 0;
+}
+.btn-download:hover {
+    background: var(--btn-hover);
+    color: var(--btn-text);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+    border-bottom: 0;
+}
+.btn-download:active {
+    transform: translateY(1px);
+}
+.download-note {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    background: var(--code-bg);
+    padding: 0.3rem 0.8rem;
+    border-radius: 40px;
+    border: 1px solid var(--border-light);
+}
+
+/* GitHub footer link */
+.github-footer {
+    margin-top: 2.8rem;
+    padding-top: 1.8rem;
+    border-top: 2px solid var(--footer-border);
+    text-align: center;
+    font-size: 1rem;
+}
+.github-footer a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    background: var(--code-bg);
+    padding: 0.55rem 1.3rem;
+    border-radius: 40px;
+    border: 1px solid var(--border-light);
+    transition: all 0.2s;
+    text-decoration: none;
+}
+.github-footer a:hover {
+    background: var(--link-color);
+    color: var(--btn-text);
+    border-color: var(--link-color);
+    transform: translateY(-2px);
+}
+.github-footer a:hover .gh-icon {
+    filter: brightness(0) invert(1);
+}
+.gh-icon {
+    font-size: 1.2rem;
+    font-weight: normal;
+    transition: filter 0.2s;
+}
+
+/* blockquotes */
+blockquote {
+    margin: 1rem 0;
+    padding: 0.6rem 1.2rem;
+    background: var(--blockquote-bg);
+    border-left: 4px solid var(--blockquote-border);
+    border-radius: 12px;
+    color: var(--text-secondary);
+}
+
+/* horizontal rule */
+hr {
+    margin: 2rem 0;
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, var(--hr-gradient-start), var(--hr-gradient-end), var(--hr-gradient-start));
+}
+
+/* path highlights */
+.path-highlight {
+    background: var(--code-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 0.85em;
+}
+
+/* table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+th, td {
+    border: 1px solid var(--border-light);
+    padding: 0.6rem;
+    text-align: left;
+    color: var(--text-secondary);
+}
+
+th {
+    background: var(--code-bg);
+    font-weight: 600;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ---------- PRINT MEDIA OVERRIDES (clean, black on white) ---------- */
+@media print {
+    body {
+        background: white;
+        padding: 0;
+        margin: 0;
+        color: black;
+    }
+    .document-container {
+        box-shadow: none;
+        border-radius: 0;
+        background: white;
+        max-width: 100%;
+    }
+    .content {
+        padding: 1.2rem;
+    }
+    h1, h2, h3, h4 {
+        color: black;
+        background: none;
+        -webkit-background-clip: unset;
+        border-left-color: #333;
+        border-bottom-color: #ccc;
+    }
+    h1 {
+        color: black;
+        background: none;
+    }
+    a {
+        color: black;
+        text-decoration: underline;
+        border-bottom: none;
+    }
+    a::after {
+        content: " (" attr(href) ")";
+        font-size: 0.85em;
+        font-weight: normal;
+        text-decoration: none;
+    }
+    .btn-download {
+        background: #eee;
+        color: black;
+        border: 1px solid #aaa;
+        box-shadow: none;
+        padding: 0.5rem 1rem;
+    }
+    .btn-download::after {
+        content: " (" attr(href) ")";
+        font-size: 0.8em;
+        font-weight: normal;
+    }
+    .github-footer a {
+        background: #f4f4f4;
+        border: 1px solid #aaa;
+        color: black;
+    }
+    .github-footer a::after {
+        content: " (" attr(href) ")";
+    }
+    code {
+        background: #f4f4f4;
+        border: 1px solid #aaa;
+        color: #b33;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+    pre, code {
+        page-break-inside: avoid;
+    }
+    p, li, blockquote {
+        color: black;
+    }
+    ul li::marker, ol li::marker {
+        color: black;
+    }
+    .content > p:first-of-type {
+        border-left-color: #aaa;
+        color: #333;
+    }
+    hr {
+        background: #ccc;
+    }
+    .document-container, body {
+        background: white;
+    }
+    h2, h3 {
+        page-break-after: avoid;
+        page-break-inside: avoid;
+    }
+    blockquote {
+        border-left-color: #666;
+        background: #fafafa;
+    }
+}
