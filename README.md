@@ -17,6 +17,25 @@ The program uses a low‑level keyboard hook (`WH_KEYBOARD_LL`) to intercept and
 - **Self-Contained Installer**: Easy installation and uninstallation via `Setup.exe`.
 - **No Admin Rights Required**: Works without administrator privileges.
 
+## Usage
+
+<img width="257" height="72" alt="image" src="https://github.com/user-attachments/assets/c389bf4f-1008-4945-88fb-02260f01a79f" />
+
+- **Block/Unblock**:
+  - Right-click the tray icon and choose **"Block"** or **"Unblock".**
+  - Or, simply type `unblock` on your keyboard to unblock the keyboard instantly.
+- **Exit**:
+  - Right-click the tray icon and select **"Exit"**.
+
+<img width="134" height="79" alt="image" src="https://github.com/user-attachments/assets/0dbcb85e-38f0-4d47-9045-b40f4f6da7cb" /> 
+    
+- **Notifications**:
+  - Left-click the tray icon to show the current blocking state.
+
+<img width="361" height="119" alt="image" src="https://github.com/user-attachments/assets/1107608e-2b9a-4a57-aefb-ced1c8312608" />
+
+The program is designed to be as unobtrusive as possible: no windows, only a tray icon and occasional balloons.
+
 ## Installation
 
 ### Using the Installer
@@ -24,6 +43,15 @@ The program uses a low‑level keyboard hook (`WH_KEYBOARD_LL`) to intercept and
 - The program will be extracted to `%APPDATA%\Keyblock` and added to Windows startup.
 
 If you want, you can modify the source code and create your own binaries.
+
+## Uninstallation
+
+- **Via Installer**:
+  - Open **Apps & Features** (or **Programs and Features**).
+  - Find **Keyboard Blocker** and click **Uninstall**.
+- **Manual Removal**:
+  - Delete the installation folder (`%APPDATA%\Keyblock`).
+  - Remove the **"Keyboard Blocker"** entry from Windows startup (via Task Manager or Registry Editor).
 
 ### Compilation Requirements
 
@@ -52,35 +80,6 @@ The script will:
 7. Create an SFX archive that includes all necessary files and an installation script. Ensure WinRAR is installed and the path in `buildsfx.bat` is correctly set to the default or your custom location.
 
 After a successful build you will find `keyblock.exe`, `uninstall.exe` and `setup.exe` in the same folder.
-
-## Usage
-
-<img width="257" height="72" alt="image" src="https://github.com/user-attachments/assets/c389bf4f-1008-4945-88fb-02260f01a79f" />
-
-- **Block/Unblock**:
-  - Right-click the tray icon and choose **"Block"** or **"Unblock".**
-  - Or, simply type `unblock` on your keyboard to unblock the keyboard instantly.
-- **Exit**:
-  - Right-click the tray icon and select **"Exit"**.
-
-<img width="134" height="79" alt="image" src="https://github.com/user-attachments/assets/0dbcb85e-38f0-4d47-9045-b40f4f6da7cb" /> 
-    
-- **Notifications**:
-  - Left-click the tray icon to show the current blocking state.
-
-<img width="361" height="119" alt="image" src="https://github.com/user-attachments/assets/1107608e-2b9a-4a57-aefb-ced1c8312608" />
-
-
-The program is designed to be as unobtrusive as possible: no windows, only a tray icon and occasional balloons.
-
-## Uninstallation
-
-- **Via Installer**:
-  - Open **Apps & Features** (or **Programs and Features**).
-  - Find **Keyboard Blocker** and click **Uninstall**.
-- **Manual Removal**:
-  - Delete the installation folder (`%APPDATA%\Keyblock`).
-  - Remove the **"Keyboard Blocker"** entry from Windows startup (via Task Manager or Registry Editor).
 
 ## License
 
