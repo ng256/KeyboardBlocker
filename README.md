@@ -55,12 +55,18 @@ After a successful build you will find `keyblock.exe`, `uninstall.exe` and `setu
 ## Usage
 
 - **Block/Unblock**:
-  - Right-click the tray icon and select **"Block"** or **"Unblock"**.
-  - Type `unblock` to unblock the keyboard at any time.
+  - Right-click the tray icon and choose **"Block"** or **"Unblock".**
+  - Or, simply type `unblock` on your keyboard to unblock the keyboard instantly.
 - **Exit**:
   - Right-click the tray icon and select **"Exit"**.
+
+<img width="134" height="79" alt="image" src="https://github.com/user-attachments/assets/0dbcb85e-38f0-4d47-9045-b40f4f6da7cb" /> 
+    
 - **Notifications**:
   - Left-click the tray icon to show the current blocking state.
+
+<img width="361" height="119" alt="image" src="https://github.com/user-attachments/assets/1107608e-2b9a-4a57-aefb-ced1c8312608" />
+
 
 The program is designed to be as unobtrusive as possible: no windows, only a tray icon and occasional balloons.
 
