@@ -95,10 +95,64 @@
 
             <h2 id="installation">Installation</h2>
             <p>
-                <strong>Quick install:</strong>
+                <strong>Using the installer:</strong>
                 <a href="https://github.com/ng256/KeyboardBlocker/releases/download/keyblock/Setup.exe">Download Setup.exe</a>
                 and run it. The program will be installed to <code>%APPDATA%\Keyblock</code> and added to Windows startup.<br>
-                If you want, you can modify the source code and create your own binaries.
+            </p>
+
+            <h2 id="usage">Usage</h2>
+            <ul>
+                <img src="https://github.com/user-attachments/assets/c389bf4f-1008-4945-88fb-02260f01a79f" alt="Block/Unblock tray menu" width="257" height="72">
+                <li>
+                    <strong>Block/Unblock</strong>:
+                    <ul>
+                        <li>Right-click the tray icon and select <strong>“Block”</strong> or <strong>“Unblock”</strong>.</li>
+                        <li>Type <code>unblock</code> to unblock the keyboard at any time.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Exit</strong>:
+                    <ul>
+                        <li>Right-click the tray icon and select <strong>“Exit”</strong>.</li>
+                    </ul>
+                    <img src="https://github.com/user-attachments/assets/0dbcb85e-38f0-4d47-9045-b40f4f6da7cb" alt="Block/Unblock tray menu" width="134" height="79">
+                </li>
+                <li>
+                    <strong>Notifications</strong>:
+                    <ul>
+                        <li>Left-click the tray icon to show the current blocking state.</li>
+                    </ul>
+                    <img src="https://github.com/user-attachments/assets/1107608e-2b9a-4a57-aefb-ced1c8312608" alt="Notification example" width="361" height="119">
+                </li>
+            </ul>
+            <p>The program is designed to be as unobtrusive as possible: no windows, only a tray icon and occasional balloons.</p>
+
+            <h2 id="uninstallation">Uninstallation</h2>
+            <ul>
+                <li>
+                    <strong>Via Installer</strong>:
+                    <ul>
+                        <li>Open <strong>Apps & Features</strong> (or <strong>Programs and Features</strong>).</li>
+                        <li>Find <strong>Keyboard Blocker</strong> and click <strong>Uninstall</strong>.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Manual Removal</strong>:
+                    <ul>
+                        <li>Delete the installation folder (<code>%APPDATA%\Keyblock</code>).</li>
+                        <li>
+                            Remove the <strong>“Keyboard Blocker”</strong> entry from Windows startup (via Task Manager or Registry
+                            Editor).
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h2 id="building">Building from source code</h2>
+            <p>
+                You can download the source code from the
+                <a href="https://github.com/ng256/KeyboardBlocker" target="_blank" rel="noopener noreferrer">GitHub repository</a>,
+                make any changes you want, and build the project yourself to create your own binaries.
             </p>
 
             <h3 id="compilation-requirements">Compilation Requirements</h3>
@@ -152,60 +206,6 @@
                 After a successful build you will find <code>keyblock.exe</code>, <code>uninstall.exe</code> and
                 <code>setup.exe</code> in the same folder.
             </p>
-
-            <h3 id="using-the-installer">Using the Installer</h3>
-            <ul>
-                <li>Run <code>Setup.exe</code> to install Keyboard Blocker. <a href="https://github.com/ng256/KeyboardBlocker/releases/download/keyblock/Setup.exe">Download the installer here</a>.</li>
-                <li>The program will be extracted to <code>%APPDATA%\Keyblock</code> and added to Windows startup.</li>
-            </ul>
-
-            <h2 id="usage">Usage</h2>
-            <ul>
-                <img src="https://github.com/user-attachments/assets/c389bf4f-1008-4945-88fb-02260f01a79f" alt="Block/Unblock tray menu" width="257" height="72">
-                <li>
-                    <strong>Block/Unblock</strong>:
-                    <ul>
-                        <li>Right-click the tray icon and select <strong>“Block”</strong> or <strong>“Unblock”</strong>.</li>
-                        <li>Type <code>unblock</code> to unblock the keyboard at any time.</li>
-                    </ul>
-                </li>
-                <li>
-                    <strong>Exit</strong>:
-                    <ul>
-                        <li>Right-click the tray icon and select <strong>“Exit”</strong>.</li>
-                    </ul>
-                    <img src="https://github.com/user-attachments/assets/0dbcb85e-38f0-4d47-9045-b40f4f6da7cb" alt="Block/Unblock tray menu" width="134" height="79">
-                </li>
-                <li>
-                    <strong>Notifications</strong>:
-                    <ul>
-                        <li>Left-click the tray icon to show the current blocking state.</li>
-                    </ul>
-                    <img src="https://github.com/user-attachments/assets/1107608e-2b9a-4a57-aefb-ced1c8312608" alt="Notification example" width="361" height="119">
-                </li>
-            </ul>
-            <p>The program is designed to be as unobtrusive as possible: no windows, only a tray icon and occasional balloons.</p>
-
-            <h2 id="uninstallation">Uninstallation</h2>
-            <ul>
-                <li>
-                    <strong>Via Installer</strong>:
-                    <ul>
-                        <li>Open <strong>Apps & Features</strong> (or <strong>Programs and Features</strong>).</li>
-                        <li>Find <strong>Keyboard Blocker</strong> and click <strong>Uninstall</strong>.</li>
-                    </ul>
-                </li>
-                <li>
-                    <strong>Manual Removal</strong>:
-                    <ul>
-                        <li>Delete the installation folder (<code>%APPDATA%\Keyblock</code>).</li>
-                        <li>
-                            Remove the <strong>“Keyboard Blocker”</strong> entry from Windows startup (via Task Manager or Registry
-                            Editor).
-                        </li>
-                    </ul>
-                </li>
-            </ul>
 
             <h2 id="license">License</h2>
             <p>
