@@ -67,6 +67,8 @@ If you want, you can modify the source code and create your own binaries.
   - Delete the installation folder (`%APPDATA%\Keyblock`).
   - Remove the **"Keyboard Blocker"** entry from Windows startup (via Task Manager or Registry Editor).
 
+## Building from Source
+
 ### Compilation Requirements
 
 - Windows operating system.
