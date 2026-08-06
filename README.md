@@ -1,7 +1,20 @@
 # Keyboard Blocker
 Copyright © 2025 Pavel Bashkardin
 
-<img width="64" height="64" alt="image" src="https://github.com/user-attachments/assets/3a73d802-ff6d-4e24-b785-cb6df88fd3dd" />
+<p align="left">
+  <img width="64" height="64" alt="image" src="https://github.com/user-attachments/assets/3a73d802-ff6d-4e24-b785-cb6df88fd3dd" />
+</p>
+<p align="left">
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-green.svg" height="64" alt="MIT License">
+  </a>
+  <a href="https://sourceforge.net/projects/keyboard-blocker/?pk_campaign=badge&pk_source=vendor">
+    <img src="https://b.sf-syn.com/badge_img/4069603/oss-rising-star-white?achievement=oss-rising-star" height="64" alt="SourceForge Rising Star">
+  </a>
+  <a href="https://sourceforge.net/projects/keyboard-blocker/?pk_campaign=badge&pk_source=vendor">
+    <img src="https://b.sf-syn.com/badge_img/4069603/oss-users-love-us-white" height="64" alt="SourceForge Users Love Us">
+  </a>
+</p>
 
 ## Description
 
