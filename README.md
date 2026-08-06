@@ -11,9 +11,6 @@ Copyright © 2025 Pavel Bashkardin
   <a href="https://sourceforge.net/projects/keyboard-blocker/?pk_campaign=badge&pk_source=vendor">
     <img src="https://b.sf-syn.com/badge_img/4069603/oss-rising-star-white?achievement=oss-rising-star" height="64" alt="SourceForge Rising Star">
   </a>
-  <a href="https://sourceforge.net/projects/keyboard-blocker/?pk_campaign=badge&pk_source=vendor">
-    <img src="https://b.sf-syn.com/badge_img/4069603/oss-users-love-us-white" height="64" alt="SourceForge Users Love Us">
-  </a>
 </p>
 
 ## Description
