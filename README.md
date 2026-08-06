@@ -23,6 +23,7 @@ Copyright © 2025 Pavel Bashkardin
 The program uses a low‑level keyboard hook (`WH_KEYBOARD_LL`) to intercept and suppress all keyboard messages before it reaches applications. It is intended for situations where you want to prevent a child (or anyone) from accidentally pressing keys while watching a video.
 
 ### Key Features
+- **Small and Fast**: Designed to have minimal memory usage and startup overhead.
 - **System Tray Integration**: Runs in the background with a tray icon.
 - **Keyword Unblocking**: Type `unblock` to unblock the keyboard at any time.
 - **Manual Control**: Right-click the tray icon to block/unblock or exit.
@@ -88,7 +89,7 @@ Simply double‑click `build.bat` or run it from the command prompt.
 The script will:
 
 1. Delete old object files and the previous executable.
-2. Compile all the resources script.
+2. Compile all resources script.
 3. Compiles the main application and uninstaller.
 4. Link everything to executable file with optimizations for small size.
 5. Display the list of imported DLLs (to verify no unexpected dependencies).
