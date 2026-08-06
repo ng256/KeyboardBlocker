@@ -20,7 +20,7 @@ Copyright © 2025 Pavel Bashkardin
 
 **Keyboard Blocker** is a lightweight Windows utility designed to completely block keyboard input. It runs silently in the background with a system tray icon (near the clock), making it ideal for preventing accidental keystrokes (e.g., during video playback or when a child is using the computer).
 
-The program uses a low‑level keyboard hook (`WH_KEYBOARD_LL`) to intercept and discard all keyboard messages. It is intended for situations where you want to prevent a child (or anyone) from accidentally pressing keys while watching a video.
+The program uses a low‑level keyboard hook (`WH_KEYBOARD_LL`) to intercept and suppress all keyboard messages before it reaches applications. It is intended for situations where you want to prevent a child (or anyone) from accidentally pressing keys while watching a video.
 
 ### Key Features
 - **System Tray Integration**: Runs in the background with a tray icon.
@@ -29,6 +29,7 @@ The program uses a low‑level keyboard hook (`WH_KEYBOARD_LL`) to intercept and
 - **Registry Persistence**: Remembers the last blocking state.
 - **Self-Contained Installer**: Easy installation and uninstallation via `Setup.exe`.
 - **No Admin Rights Required**: Works without administrator privileges.
+- **Native WinAPI Application**: Lightweight standalone executable with no external frameworks or runtime dependencies.
 
 ## Usage
 
