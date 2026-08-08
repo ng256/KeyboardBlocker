@@ -51,6 +51,7 @@ extern NOTIFYICONDATA  g_nid;            // Tray icon notification data
 
 // Additional globals used by keyboard hook and blocking control
 extern BOOL            g_bBlocking;      // Current blocking state (TRUE = blocked)
+extern BOOL            g_bAutorun;       // TRUE if started with /autorun switch
 extern CRITICAL_SECTION g_cs;            // Critical section for keyword buffer
 extern char            g_typed[];        // Last KEYWORD_LEN letters typed (lowercase)
 extern int             g_typedLen;       // Number of valid letters in g_typed
@@ -58,6 +59,9 @@ extern int             g_typedLen;       // Number of valid letters in g_typed
 //=============================================================================
 // Function prototypes
 //=============================================================================
+
+// Command-line parsing
+int QueryCommandLine(LPCSTR lpCmdLine, LPCSTR key, BOOL hasValue, LPSTR value, DWORD valueSize);
 
 // Main window and hook procedures
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
