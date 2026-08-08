@@ -66,7 +66,7 @@ extern int             g_typedLen;       // Number of valid letters in g_typed
 int QueryCommandLine(LPCSTR lpCmdLine, LPCSTR key, BOOL hasValue, LPSTR value, DWORD valueSize);
 
 // Cleanup all resources
-void Cleanup(BOOL bRemoveTrayIcon);
+void Cleanup(BOOL bRemoveUI);
 
 // Main window and hook procedures
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
