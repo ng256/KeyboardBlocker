@@ -563,7 +563,7 @@ void ShowBalloonBlocked(HWND hwnd)
 {
     ShowBalloonMessage(hwnd, "Keyboard Blocker",
                        "Keyboard is blocked.\n"
-                       "Type \"unblock\" to unblock, or right-click the icon and select \"Unblock\".",
+                       "Type \"unblock\" on keyboard to unblock, or right-click the icon and select \"Unblock\".",
                        NIIF_WARNING);
 }
 
