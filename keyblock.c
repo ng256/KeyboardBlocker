@@ -24,7 +24,8 @@
 
 HINSTANCE       g_hInst;                // Application instance handle
 HANDLE          g_hMutex = NULL;        // Mutex to ensure single instance
-HANDLE          g_hEvent = NULL;        // Auto-reset event for status requests
+HANDLE          g_hStatusEvent = NULL;  // Auto-reset event for status requests (from second instance)
+HANDLE          g_hShutdownEvent = NULL;// Auto-reset event for shutdown request (from installer/uninstaller)
 HANDLE          g_hWatchThread = NULL;  // Thread that waits for event
 HHOOK           g_hHook = NULL;         // Low-level keyboard hook handle
 HWND            g_hwnd = NULL;          // Hidden window handle
@@ -151,7 +152,7 @@ void LoadBlockingStateFromRegistry(void)
         DWORD type = 0;
         DWORD size = sizeof(value);
         lResult = RegQueryValueExA(hKey, "State", NULL, &type, (BYTE*)&value, &size);
-		// If registry key missing or non-zero, g_bBlocking remains TRUE (default)
+        // If registry key missing or non-zero, g_bBlocking remains TRUE (default)
         if (lResult == ERROR_SUCCESS && type == REG_DWORD)
         {
             g_bBlocking = TO_BOOL(value);
@@ -187,6 +188,56 @@ void BlockKeyboard(HWND hwnd)
 }
 
 //=============================================================================
+// Cleanup – release all resources
+//=============================================================================
+
+void Cleanup(BOOL bRemoveUI)
+{
+    // Remove UI elements if requested
+    if (bRemoveUI)
+    {
+        RemoveTrayIcon();
+    }
+
+    // Unhook keyboard hook if installed
+    if (g_hHook)
+    {
+        UnhookWindowsHookEx(g_hHook);
+        g_hHook = NULL;
+    }
+
+    // Wait for watch thread to finish and close its handle
+    if (g_hWatchThread)
+    {
+        WaitForSingleObject(g_hWatchThread, 1000);
+        CloseHandle(g_hWatchThread);
+        g_hWatchThread = NULL;
+    }
+
+    // Close all kernel objects
+    if (g_hStatusEvent)
+    {
+        CloseHandle(g_hStatusEvent);
+        g_hStatusEvent = NULL;
+    }
+
+    if (g_hShutdownEvent)
+    {
+        CloseHandle(g_hShutdownEvent);
+        g_hShutdownEvent = NULL;
+    }
+
+    if (g_hMutex)
+    {
+        CloseHandle(g_hMutex);
+        g_hMutex = NULL;
+    }
+
+    // Delete critical section (must have been initialized)
+    DeleteCriticalSection(&g_cs);
+}
+
+//=============================================================================
 // WinMain – entry point
 //=============================================================================
 
@@ -194,36 +245,67 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
     g_hInst = hInstance;
 
+    // Check for /shutdown switch early
+    BOOL bShutdown = (QueryCommandLine(lpCmdLine, "shutdown", FALSE, NULL, 0) == 1);
+
     // Single instance control via mutex
     g_hMutex = CreateMutexA(NULL, FALSE, MUTEX_NAME);
     if (g_hMutex == NULL)
         return 1;
 
-    // Second instance: signal the first to show status and quit
+    // Second instance handling
     if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
-        HANDLE hEvent = OpenEventA(EVENT_MODIFY_STATE, FALSE, EVENT_NAME);
-        if (hEvent)
+        if (bShutdown)
         {
-            SetEvent(hEvent);
-            CloseHandle(hEvent);
+            // Ask the running instance to exit
+            HANDLE hEvent = OpenEventA(EVENT_MODIFY_STATE, FALSE, EVENT_SHUTDOWN_NAME);
+            if (hEvent)
+            {
+                SetEvent(hEvent);
+                CloseHandle(hEvent);
+            }
+        }
+        else
+        {
+            // Ask the running instance to show status balloon
+            HANDLE hEvent = OpenEventA(EVENT_MODIFY_STATE, FALSE, EVENT_STATUS_NAME);
+            if (hEvent)
+            {
+                SetEvent(hEvent);
+                CloseHandle(hEvent);
+            }
         }
         CloseHandle(g_hMutex);
         return 0;
     }
-
-    // First instance: create auto-reset event
-    g_hEvent = CreateEventA(NULL, FALSE, FALSE, EVENT_NAME);
-    if (!g_hEvent)
+    else if (bShutdown)
     {
+        // If /shutdown is present and the app is not running, just exit silently
+        CloseHandle(g_hMutex);
+        return 0;
+    }
+
+    // First instance: create auto-reset events for inter-process communication
+    g_hStatusEvent = CreateEventA(NULL, FALSE, FALSE, EVENT_STATUS_NAME);
+    if (!g_hStatusEvent)
+    {
+        CloseHandle(g_hMutex);
+        return 1;
+    }
+
+    g_hShutdownEvent = CreateEventA(NULL, FALSE, FALSE, EVENT_SHUTDOWN_NAME);
+    if (!g_hShutdownEvent)
+    {
+        CloseHandle(g_hStatusEvent);
         CloseHandle(g_hMutex);
         return 1;
     }
 
     // Load saved blocking state from registry
     LoadBlockingStateFromRegistry();
-	
-	// Check command line for /autorun switch
+
+    // Check command line for /autorun switch
     if (QueryCommandLine(lpCmdLine, "autorun", FALSE, NULL, 0) == 1)
         g_bAutorun = TRUE;
 
@@ -240,9 +322,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     wc.hIconSm       = LoadIcon(g_hInst, MAKEINTRESOURCE(IDI_ICON16));
     if (!RegisterClassExA(&wc))
     {
-        DeleteCriticalSection(&g_cs);
-        CloseHandle(g_hEvent);
-        CloseHandle(g_hMutex);
+        Cleanup(FALSE);
         return 1;
     }
 
@@ -251,20 +331,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                              0, 0, 0, 0, 0, NULL, NULL, g_hInst, NULL);
     if (!g_hwnd)
     {
-        DeleteCriticalSection(&g_cs);
-        CloseHandle(g_hEvent);
-        CloseHandle(g_hMutex);
+        Cleanup(FALSE);
         return 1;
     }
 
-    // Start thread that waits for the event (from second instances)
+    // Start thread that waits for events (from second instances)
     g_hWatchThread = CreateThread(NULL, 0, WatchThreadProc, NULL, 0, NULL);
     if (!g_hWatchThread)
     {
-        DestroyWindow(g_hwnd);
-        DeleteCriticalSection(&g_cs);
-        CloseHandle(g_hEvent);
-        CloseHandle(g_hMutex);
+        DestroyWindow(g_hwnd);   // will trigger WM_DESTROY, which calls Cleanup(TRUE)
         return 1;
     }
 
@@ -276,8 +351,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         DispatchMessage(&msg);
     }
 
-    // Cleanup
-    DeleteCriticalSection(&g_cs);
+    // WM_DESTROY already called Cleanup(TRUE), so nothing left to do
     return 0;
 }
 
@@ -291,7 +365,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         case WM_CREATE:
             AddTrayIcon(hwnd);
-			
+
             // Show balloon only if:
             //  - keyboard is blocked (remind user how to unblock), or
             //  - keyboard is unblocked and we are NOT launched via autorun
@@ -328,18 +402,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case WM_DESTROY:
             SaveBlockingStateToRegistry();   // Persist final state
-            RemoveTrayIcon();
-            if (g_hHook)
-                UnhookWindowsHookEx(g_hHook);
-            if (g_hWatchThread)
-            {
-                WaitForSingleObject(g_hWatchThread, 1000);
-                CloseHandle(g_hWatchThread);
-            }
-            if (g_hEvent)
-                CloseHandle(g_hEvent);
-            if (g_hMutex)
-                CloseHandle(g_hMutex);
+            Cleanup(TRUE);                   // Remove tray UI and all resources
             PostQuitMessage(0);
             return 0;
 
@@ -419,16 +482,29 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 }
 
 //=============================================================================
-// Watch thread: waits for event (signaled by second instances)
+// Watch thread: waits for events (signaled by second instances)
 //=============================================================================
 
 DWORD WINAPI WatchThreadProc(LPVOID lpParam)
 {
+    HANDLE events[2] = { g_hStatusEvent, g_hShutdownEvent };
+
     while (1)
     {
-        WaitForSingleObject(g_hEvent, INFINITE);
-        PostMessage(g_hwnd, WM_SHOW_STATUS, 0, 0);
+        DWORD dw = WaitForMultipleObjects(2, events, FALSE, INFINITE);
+
+        if (dw == WAIT_OBJECT_0)          // g_hStatusEvent
+        {
+            PostMessage(g_hwnd, WM_SHOW_STATUS, 0, 0);
+        }
+        else if (dw == WAIT_OBJECT_0 + 1) // g_hShutdownEvent
+        {
+            // Ask the main window to destroy itself (will trigger WM_DESTROY)
+            PostMessage(g_hwnd, WM_CLOSE, 0, 0);
+            break;   // exit thread after sending shutdown
+        }
     }
+
     return 0;
 }
 
