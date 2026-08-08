@@ -109,7 +109,7 @@ REM Build archive
 REM --------------------------------------------
 echo Creating SFX archive...
 
-"%RAR%" a -r -sfx -iadm -z"%COMMENT%" %ICON_PARAM% %LOGO_PARAM% "%OUT%" %ICON% "%FILE1%" "%FILE2%" "%FILE3%"
+"%RAR%" a -r -sfxDefaultEn32.SFX -iadm -z"%COMMENT%" %ICON_PARAM% %LOGO_PARAM% "%OUT%" %ICON% "%FILE1%" "%FILE2%" "%FILE3%"
 if errorlevel 1 (
     echo WinRAR failed with code %ERRORLEVEL%
     goto :error
