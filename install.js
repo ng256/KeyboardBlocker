@@ -83,7 +83,7 @@ try {
 
 shell.RegWrite(
     "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Keyboard Blocker",
-    "\"" + exePath + "\"",
+    "\"" + exePath + "\" /autorun",
     "REG_SZ"
 );
 
