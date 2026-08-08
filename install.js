@@ -9,6 +9,7 @@
 
 var shell = new ActiveXObject("WScript.Shell");
 var fso = new ActiveXObject("Scripting.FileSystemObject");
+var wmi = GetObject("winmgmts:\\\\.\\root\\cimv2");
 
 var appDir = fso.GetParentFolderName(WScript.ScriptFullName);
 var appName = "Keyboard Blocker";
@@ -21,12 +22,23 @@ var iconPath = fso.BuildPath(appDir, "icon32.ico");
 // Replace keyblock.exe safely
 // ===========================================
 
+// Attempt graceful shutdown
 try {
-    shell.Run("taskkill /F /IM keyblock.exe", 0, true);
+    shell.Run("\"" + exePath + "\" /shutdown", 0, false);
 } catch (e) {}
 
-var wmi = GetObject("winmgmts:\\\\.\\root\\cimv2");
-var i, list;
+
+// Wait up to 3 seconds for the process to exit
+for (var i = 0; i < 30; i++) {
+    list = wmi.ExecQuery("Select * From Win32_Process Where Name='keyblock.exe'");
+    if (list.Count === 0) break;
+    WScript.Sleep(100);
+}
+
+// If still running, force kill (fallback)
+if (list && list.Count > 0) {
+    shell.Run("taskkill /F /IM keyblock.exe", 0, true);
+}
 
 // wait process exit (~10 sec)
 for (i = 0; i < 50; i++) {
