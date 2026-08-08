@@ -14,7 +14,8 @@
  */
 
 #include "keyblock.h"
-#include "resource.h"   // for icon IDs (IDI_ICON16, IDI_ICON32)
+#include "resource.h"
+#include "nocrt.h"
 
 #pragma comment(linker, "/SUBSYSTEM:WINDOWS")
 

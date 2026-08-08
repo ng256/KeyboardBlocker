@@ -15,7 +15,10 @@ REM Configuration
 REM ------------------------------------------------------------
 
 REM Path to GCC bin folder (adjust if necessary)
-set PATH=C:\Program Files\TDM-GCC-64\bin;%PATH%
+set PATH=C:\TDM-GCC-64\bin;%PATH%
+
+set NOCRT_C=nocrt.c
+set NOCRT_OBJ=%NOCRT_C:.c=.o%
 
 set PROJECT_NAME=keyblock
 set KEYBLOCK_RC=resource.rc
@@ -74,10 +77,17 @@ windres -i %UNINSTALL_RC% -o %UNINSTALL_RC_OBJ% --input-format=rc -O coff -F pe-
 if errorlevel 1 goto error
 
 REM ------------------------------------------------------------
+REM Compile CRT stub
+REM ------------------------------------------------------------
+echo Compiling %NOCRT_C%...
+gcc -m32 -Os -s -static-libgcc -ffunction-sections -fdata-sections -mwindows -fno-builtin -I. -c %NOCRT_C% -o %NOCRT_OBJ%
+if errorlevel 1 goto error
+
+REM ------------------------------------------------------------
 REM Compile C source for main app
 REM ------------------------------------------------------------
 echo Compiling %KEYBLOCK_C%...
-gcc -m32 -Os -s -static -static-libgcc -ffunction-sections -fdata-sections -mwindows -I. -c %KEYBLOCK_C% -o %KEYBLOCK_C_OBJ%
+gcc -m32 -Os -s -static-libgcc -ffunction-sections -fdata-sections -mwindows -I. -c %KEYBLOCK_C% -o %KEYBLOCK_C_OBJ%
 if errorlevel 1 goto error
 
 REM ------------------------------------------------------------
@@ -91,14 +101,14 @@ REM ------------------------------------------------------------
 REM Link main app
 REM ------------------------------------------------------------
 echo Linking %KEYBLOCK_EXE%...
-gcc -m32 -Os -s -static -static-libgcc -ffunction-sections -fdata-sections -mwindows %KEYBLOCK_C_OBJ% %KEYBLOCK_RC_OBJ% -o %KEYBLOCK_EXE% -Wl,--gc-sections
+gcc -m32 -Os -s -nostdlib -nostartfiles -Wl,--subsystem,windows -Wl,-e,_WinMain@16 %KEYBLOCK_C_OBJ% %NOCRT_OBJ% %KEYBLOCK_RC_OBJ% -o %KEYBLOCK_EXE% -lkernel32 -luser32 -lshell32 -ladvapi32 -lshlwapi -Wl,--gc-sections
 if errorlevel 1 goto error
 
 REM ------------------------------------------------------------
 REM Link uninstaller
 REM ------------------------------------------------------------
 echo Linking %UNINSTALL_EXE%...
-gcc -m32 -Os -s -static -static-libgcc -ffunction-sections -fdata-sections -mwindows %UNINSTALL_OBJ% %UNINSTALL_RC_OBJ% -o %UNINSTALL_EXE% -Wl,--gc-sections -lshlwapi
+gcc -m32 -Os -s -nostdlib -nostartfiles -Wl,--subsystem,windows -Wl,-e,_WinMain@16 %UNINSTALL_OBJ% %NOCRT_OBJ% %UNINSTALL_RC_OBJ% -o %UNINSTALL_EXE% -lkernel32 -luser32 -lshell32 -ladvapi32 -lshlwapi -Wl,--gc-sections
 if errorlevel 1 goto error
 
 REM ------------------------------------------------------------
