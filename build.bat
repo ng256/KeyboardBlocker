@@ -13,6 +13,10 @@ REM ============================================================================
 REM ------------------------------------------------------------
 REM Configuration
 REM ------------------------------------------------------------
+
+REM Path to GCC bin folder (adjust if necessary)
+set PATH=C:\Program Files\TDM-GCC-64\bin;%PATH%
+
 set PROJECT_NAME=keyblock
 set KEYBLOCK_RC=resource.rc
 set KEYBLOCK_C=keyblock.c
@@ -30,9 +34,6 @@ set KEYBLOCK_EXE=%PROJECT_NAME%.exe
 set UNINSTALL_RC_OBJ=%UNINSTALL_RC:.rc=.rc.o%
 set UNINSTALL_OBJ=%UNINSTALL_C:.c=.o%
 set UNINSTALL_EXE=%UNINSTALL_NAME%.exe
-
-REM Path to GCC bin folder (adjust if necessary)
-set PATH=C:\Program Files\TDM-GCC-64\bin;%PATH%
 
 REM --------------------------------------------
 REM Check required files
