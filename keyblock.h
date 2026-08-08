@@ -21,8 +21,9 @@
 //=============================================================================
 
 // Inter-process communication
-#define MUTEX_NAME          "KeyboardBlockerMutex"   // Mutex for single instance
-#define EVENT_NAME          "KeyboardBlockerEvent"   // Auto-reset event for status request
+#define MUTEX_NAME              "KeyboardBlockerMutex"   // Mutex for single instance
+#define EVENT_STATUS_NAME       "KeyboardBlockerStatusEvent"   // Auto-reset event for status request
+#define EVENT_SHUTDOWN_NAME     "KeyboardBlockerShutdownEvent" // Auto-reset event for shutdown request
 
 // Custom window messages
 #define WM_TRAYICON         (WM_APP + 1)             // Tray icon notification
@@ -43,7 +44,8 @@
 
 extern HINSTANCE       g_hInst;          // Application instance handle
 extern HANDLE          g_hMutex;         // Mutex to ensure single instance
-extern HANDLE          g_hEvent;         // Auto-reset event for status requests
+extern HANDLE          g_hStatusEvent;   // Auto-reset event for status requests
+extern HANDLE          g_hShutdownEvent; // Auto-reset event for shutdown requests
 extern HANDLE          g_hWatchThread;   // Thread that waits for event
 extern HHOOK           g_hHook;          // Low-level keyboard hook handle
 extern HWND            g_hwnd;           // Hidden window handle
@@ -62,6 +64,9 @@ extern int             g_typedLen;       // Number of valid letters in g_typed
 
 // Command-line parsing
 int QueryCommandLine(LPCSTR lpCmdLine, LPCSTR key, BOOL hasValue, LPSTR value, DWORD valueSize);
+
+// Cleanup all resources
+void Cleanup(BOOL bRemoveTrayIcon);
 
 // Main window and hook procedures
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
