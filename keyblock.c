@@ -31,9 +31,95 @@ HWND            g_hwnd = NULL;          // Hidden window handle
 NOTIFYICONDATA  g_nid = {0};            // Tray icon notification data
 
 BOOL            g_bBlocking = TRUE;     // Current blocking state (TRUE = blocked)
+BOOL            g_bAutorun = FALSE;     // TRUE if started with /autorun switch
 CRITICAL_SECTION g_cs;                  // Protects g_typed and g_typedLen
 char            g_typed[KEYWORD_LEN+1] = {0}; // Last KEYWORD_LEN letters typed (lowercase)
 int             g_typedLen = 0;         // Number of valid letters in g_typed
+
+//=============================================================================
+// Command-line parsing
+//=============================================================================
+
+// Compares up to len characters of two strings without regard to case.
+static int CompareNoCaseLen(LPCSTR a, LPCSTR b, size_t len)
+{
+    for (size_t i = 0; i < len; i++)
+    {
+        char ca = a[i];
+        char cb = b[i];
+        if (ca >= 'A' && ca <= 'Z') ca += 32;
+        if (cb >= 'A' && cb <= 'Z') cb += 32;
+        if (ca != cb) return ca - cb;
+    }
+    return 0;
+}
+
+// Parses a command line string to find a specific switch.
+int QueryCommandLine(LPCSTR lpCmdLine, LPCSTR key, BOOL hasValue, LPSTR value, DWORD valueSize)
+{
+    if (!lpCmdLine || !key) return 0;
+
+    size_t keyLen = lstrlenA(key);
+    if (keyLen == 0) return 0;
+
+    const char* p = lpCmdLine;
+
+    while (*p)
+    {
+        // Skip leading spaces
+        while (*p == ' ') p++;
+        if (*p == '\0') break;
+
+        // Start of current argument
+        const char* argStart = p;
+        while (*p && *p != ' ') p++;
+        size_t argLen = p - argStart;
+
+        // Argument must start with '/' or '-'
+        if (argLen > 1 && (argStart[0] == '/' || argStart[0] == '-'))
+        {
+            const char* keyStart = argStart + 1;
+            size_t curKeyLen = argLen - 1;
+
+            if (curKeyLen == keyLen && CompareNoCaseLen(keyStart, key, keyLen) == 0)
+            {
+                // Switch found
+                if (!hasValue)
+                    return 1;   // flag success
+
+                // --- Look for the value (next argument) ---
+                while (*p == ' ') p++;
+                if (*p == '\0')
+                    return -1;      // missing value
+
+                const char* valStart = p;
+
+                // Value must not be another switch
+                if (*valStart == '/' || *valStart == '-')
+                    return -1;      // next arg is a switch, not a value
+
+                // Find end of value (until next space)
+                while (*p && *p != ' ') p++;
+                size_t valLen = p - valStart;
+
+                if (valLen == 0)
+                    return -1;      // empty value
+
+                // Check buffer
+                if (value == NULL || valueSize == 0 || valLen >= valueSize)
+                    return -1;      // insufficient space (need one byte for '\0')
+
+                memcpy(value, valStart, valLen);
+                value[valLen] = '\0';
+
+                return (int)valLen; // return length of copied value
+            }
+        }
+        // Not our switch – continue scanning
+    }
+
+    return 0;   // switch not found
+}
 
 //=============================================================================
 // Registry persistence
@@ -136,6 +222,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     // Load saved blocking state from registry
     LoadBlockingStateFromRegistry();
+	
+	// Check command line for /autorun switch
+    if (QueryCommandLine(lpCmdLine, "autorun", FALSE, NULL, 0) == 1)
+        g_bAutorun = TRUE;
 
     // Initialize critical section for keyword buffer
     InitializeCriticalSection(&g_cs);
@@ -201,10 +291,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         case WM_CREATE:
             AddTrayIcon(hwnd);
-            // Show balloon according to current blocking state
+			
+            // Show balloon only if:
+            //  - keyboard is blocked (remind user how to unblock), or
+            //  - keyboard is unblocked and we are NOT launched via autorun
             if (g_bBlocking)
                 ShowBalloonBlocked(hwnd);
-            else
+            else if(!g_bAutorun)
                 ShowBalloonUnblocked(hwnd);
             // Install low-level keyboard hook
             g_hHook = SetWindowsHookExW(WH_KEYBOARD_LL, LowLevelKeyboardProc,
