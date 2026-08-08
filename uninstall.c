@@ -6,7 +6,7 @@
  *
  * Description: uninstall program source file.
  *              During uninstallation:
- *              - The application process will be terminated
+ *              - The application process will be terminated gracefully via /shutdown
  *              - All registry entries will be removed
  *              - Shortcuts will be deleted
  *              - All files, including the installation folder, will be removed.
@@ -42,16 +42,16 @@ void RemoveShortcuts()
 // Delete registry keys
 void RemoveRegistry()
 {
-	// Remove app settings
+    // Remove app settings
     RegDeleteKeyA(HKEY_CURRENT_USER, "Software\\Keyblock");
-	
-	// Remove startup entry
-	HKEY hKey;
-	if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS) 
-	{
-		RegDeleteValue(hKey, "Keyboard Blocker");
-		RegCloseKey(hKey);
-	}
+
+    // Remove startup entry
+    HKEY hKey;
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS)
+    {
+        RegDeleteValue(hKey, "Keyboard Blocker");
+        RegCloseKey(hKey);
+    }
 
     // Remove uninstall entry
     SHDeleteKeyA(
@@ -102,7 +102,7 @@ BOOL DeleteDirectoryRecursive(LPCSTR dir)
     return TRUE;
 }
 
-// Kill process by name
+// Kill process by name (fallback)
 void KillProcessByName(LPCSTR processName)
 {
     HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -133,21 +133,22 @@ void KillProcessByName(LPCSTR processName)
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
-	// Confirm uninstallation
-	int result = MessageBoxA(
-		NULL,
-		"Are you sure you want to uninstall Keyboard Blocker?",
-		"Keyboard Blocker",
-		MB_OKCANCEL | MB_ICONQUESTION | MB_DEFBUTTON2
-	);
+    // Confirm uninstallation
+    int result = MessageBoxA(
+        NULL,
+        "Are you sure you want to uninstall Keyboard Blocker?",
+        "Keyboard Blocker",
+        MB_OKCANCEL | MB_ICONQUESTION | MB_DEFBUTTON2
+    );
 
-	if (result != IDOK)
-	{
-		return 0;
-	}
-	
+    if (result != IDOK)
+    {
+        return 0;
+    }
+
     char exePath[MAX_PATH];
     char dirPath[MAX_PATH];
+    char shutdownCmd[MAX_PATH * 2];
 
     // Get full path to current exe
     GetModuleFileNameA(NULL, exePath, MAX_PATH);
@@ -156,11 +157,26 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
     lstrcpyA(dirPath, exePath);
     PathRemoveFileSpecA(dirPath);
 
-    // Kill keyblock.exe if running
+    // Try graceful shutdown of keyblock.exe
+    wsprintfA(shutdownCmd, "\"%s\\keyblock.exe\" /shutdown", dirPath);
+    STARTUPINFOA si;
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    if (CreateProcessA(NULL, shutdownCmd, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+    {
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+    }
+
+    // Wait up to 3 seconds for it to exit
+    Sleep(300);
+
+    // Then kill if still running (fallback)
     KillProcessByName("keyblock.exe");
-	
-	// Remove shortcuts
-	RemoveShortcuts();
+
+    // Remove shortcuts
+    RemoveShortcuts();
 
     // Remove registry
     RemoveRegistry();
@@ -175,9 +191,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
         "cmd.exe /c ping 127.0.0.1 -n 2 > nul & rd /s /q \"%s\"",
         dirPath
     );
-
-    STARTUPINFOA si;
-    PROCESS_INFORMATION pi;
 
     ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(si);
