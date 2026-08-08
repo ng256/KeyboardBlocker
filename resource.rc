@@ -15,8 +15,8 @@ IDI_ICON16      ICON    "icon16.ico"
 #include <windows.h>
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION     1,0,0,0
-PRODUCTVERSION  1,0,0,0
+FILEVERSION     1,3,0,0
+PRODUCTVERSION  1,3,0,0
 FILEFLAGSMASK   0x3fL
 FILEFLAGS       0x0L
 FILEOS          VOS_NT_WINDOWS32
@@ -29,11 +29,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName",      "Pavel Bashkarin"
             VALUE "FileDescription",  "Keyboard Blocker"
-            VALUE "FileVersion",      "1.2.0.0"
+            VALUE "FileVersion",      "1.3.0.0"
             VALUE "InternalName",     "keyblock"
             VALUE "OriginalFilename", "keyblock.exe"
             VALUE "ProductName",      "Keyboard Blocker"
-            VALUE "ProductVersion",   "1.2.0.0"
+            VALUE "ProductVersion",   "1.3.0.0"
         END
     END
     BLOCK "VarFileInfo"
